@@ -14,9 +14,9 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
 
 # 更换为淘宝镜像
-RUN npm install -g pnpm --registry=https://registry.npm.taobao.org
-RUN pnpm config set registry 'https://registry.npm.taobao.org/'
-RUN pnpm install --no-frozen-lockfile
+# RUN npm install -g pnpm --registry=https://registry.npm.taobao.org
+RUN npm config set registry 'https://registry.npm.taobao.org/'
+RUN npm install --no-frozen-lockfile
 
 ### 构建镜像 ###
 FROM base AS builder
