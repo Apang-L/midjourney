@@ -1,28 +1,21 @@
-### 基础镜像 ###
 FROM node:18-alpine AS base
-# 设置Alpine的镜像源为阿里云的镜像源
-RUN echo "http://mirrors.aliyun.com/alpine/v3.10/main/" > /etc/apk/repositories \
- && echo "http://mirrors.aliyun.com/alpine/v3.10/community/" >> /etc/apk/repositories
 
-### 依赖镜像 ###
 FROM base AS deps
+
+# 设置环境变量http_proxy和https_proxy
+ENV http_proxy=http://10.9.249.135:18888
+ENV https_proxy=http://10.9.249.135:18888
 
 RUN apk add --no-cache libc6-compat
 
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml ./
+RUN npm install pnpm -g
+RUN pnpm config set registry 'https://registry.npmjs.org/'
+RUN pnpm install --no-frozen-lockfile
 
-# 更换为淘宝镜像
-# RUN npm install -g pnpm --registry=https://registry.npm.taobao.org
-RUN npm config set registry 'https://registry.npm.taobao.org/'
-RUN npm install --no-frozen-lockfile
-
-### 构建镜像 ###
 FROM base AS builder
-# 设置Alpine的镜像源为阿里云的镜像源
-RUN echo "http://mirrors.aliyun.com/alpine/v3.10/main/" > /etc/apk/repositories \
- && echo "http://mirrors.aliyun.com/alpine/v3.10/community/" >> /etc/apk/repositories
 
 RUN apk update && apk add --no-cache git
 
@@ -34,7 +27,6 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
 
-### 运行镜像 ###
 FROM base AS runner
 WORKDIR /app
 
