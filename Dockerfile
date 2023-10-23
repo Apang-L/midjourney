@@ -33,6 +33,10 @@ WORKDIR /app
 
 RUN apk add proxychains-ng
 
+# 取消代理环境变量
+ENV http_proxy=
+ENV https_proxy=
+
 ENV PROXY_URL=""
 ENV OPENAI_API_KEY=""
 ENV CODE=""
