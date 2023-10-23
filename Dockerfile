@@ -2,18 +2,24 @@ FROM node:18-alpine AS base
 
 FROM base AS deps
 
-RUN apk add --no-cache libc6-compat
+# 使用国内apk源
+RUN echo "https://mirrors.aliyun.com/alpine/v3.13/main/" > /etc/apk/repositories \
+    && apk add --no-cache libc6-compat
 
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml ./
-RUN npm install pnpm -g
-RUN pnpm config set registry 'https://registry.npmjs.org/'
-RUN pnpm install --no-frozen-lockfile
+# 使用国内npm源
+RUN npm config set registry 'https://registry.npm.taobao.org/' \
+    && npm install pnpm -g \
+    && pnpm config set registry 'https://registry.npm.taobao.org/' \
+    && pnpm install --no-frozen-lockfile
 
 FROM base AS builder
 
-RUN apk update && apk add --no-cache git
+# 使用国内apk源
+RUN echo "https://mirrors.aliyun.com/alpine/v3.13/main/" > /etc/apk/repositories \
+    && apk update && apk add --no-cache git
 
 ENV OPENAI_API_KEY=""
 ENV CODE=""
@@ -26,7 +32,9 @@ RUN npm run build
 FROM base AS runner
 WORKDIR /app
 
-RUN apk add proxychains-ng
+# 使用国内apk源
+RUN echo "https://mirrors.aliyun.com/alpine/v3.13/main/" > /etc/apk/repositories \
+    && apk add proxychains-ng
 
 ENV PROXY_URL=""
 ENV OPENAI_API_KEY=""
