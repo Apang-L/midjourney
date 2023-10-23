@@ -1,41 +1,41 @@
-FROM registry.bbcloud.babybus.com/pagoda/node:18-alpine AS base
+# FROM registry.bbcloud.babybus.com/pagoda/node:18-alpine AS base
 
-# 设置环境变量http_proxy和https_proxy
-ENV http_proxy=http://10.9.249.135:18888
-ENV https_proxy=http://10.9.249.135:18888
+# # 设置环境变量http_proxy和https_proxy
+# ENV http_proxy=http://10.9.249.135:18888
+# ENV https_proxy=http://10.9.249.135:18888
 
-FROM base AS deps
+# FROM base AS deps
 
-RUN apk add --no-cache libc6-compat
+# RUN apk add --no-cache libc6-compat
 
-WORKDIR /app
+# WORKDIR /app
 
-COPY package.json pnpm-lock.yaml ./
-RUN npm install pnpm -g
-RUN pnpm config set registry 'https://registry.npmjs.org/'
-RUN pnpm install --no-frozen-lockfile
+# COPY package.json pnpm-lock.yaml ./
+# RUN npm install pnpm -g
+# RUN pnpm config set registry 'https://registry.npmjs.org/'
+# RUN pnpm install --no-frozen-lockfile
 
-FROM base AS builder
+# FROM base AS builder
 
 
-RUN apk update && apk add --no-cache git
+# RUN apk update && apk add --no-cache git
 
-ENV OPENAI_API_KEY=""
-ENV CODE=""
+# ENV OPENAI_API_KEY=""
+# ENV CODE=""
 
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
-RUN npm run build
+# WORKDIR /app
+# COPY --from=deps /app/node_modules ./node_modules
+# COPY . .
+# RUN npm run build
 
-FROM base AS runner
-WORKDIR /app
+# FROM base AS runner
+# WORKDIR /app
 
-RUN apk add proxychains-ng
+# RUN apk add proxychains-ng
 
-# 取消代理环境变量
-ENV http_proxy=
-ENV https_proxy=
+# # 取消代理环境变量
+# ENV http_proxy=
+# ENV https_proxy=
 
 # ENV PROXY_URL="http://10.9.249.135:18888"
 # ENV OPENAI_API_KEY="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"
@@ -46,12 +46,12 @@ ENV https_proxy=
 # ENV MJ_DISCORD_WSS_PROXY=""
 # ENV MJ_DISCORD_CDN_PROXY=""
 
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/.next/server ./.next/server
+# COPY --from=builder /app/public ./public
+# COPY --from=builder /app/.next/standalone ./
+# COPY --from=builder /app/.next/static ./.next/static
+# COPY --from=builder /app/.next/server ./.next/server
 
-EXPOSE 3000
+# EXPOSE 3000
 
 # CMD if [ -n "$PROXY_URL" ]; then \
 #         export HOSTNAME="127.0.0.1"; \
@@ -73,4 +73,38 @@ EXPOSE 3000
 #     else \
 #         node server.js; \
 #     fi
-CMD [ "node", "server.js" ]
+
+# Use an official Node.js runtime as the base image
+FROM registry.bbcloud.babybus.com/pagoda/node:18-alpine
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Copy the package.json and package-lock.json (if available) to the container
+COPY package.json package-lock.json ./
+
+# 设置环境变量http_proxy和https_proxy
+ENV http_proxy=http://10.9.249.135:18888
+ENV https_proxy=http://10.9.249.135:18888
+
+# Install Next.js and other dependencies
+RUN npm install
+
+# 取消代理环境变量
+ENV http_proxy=
+ENV https_proxy=
+
+# Copy the rest of the application code into the container
+COPY . .
+
+# Build the Next.js app
+RUN npx next build
+
+# Set the host environment variable
+ENV HOST=0.0.0.0
+
+# Expose port 3000 to the outside
+EXPOSE 3000
+
+# Command to run the application
+CMD ["npx", "next", "start"]
