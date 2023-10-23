@@ -100,11 +100,8 @@ COPY . .
 # Build the Next.js app
 RUN npx next build
 
-# Set the host environment variable
-ENV HOST=0.0.0.0
-
 # Expose port 3000 to the outside
 EXPOSE 3000
 
 # Command to run the application
-CMD ["npx", "next", "start"]
+CMD ["npx", "next", "start", "-H", "0.0.0.0"]
