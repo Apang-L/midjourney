@@ -1,10 +1,10 @@
 FROM registry.bbcloud.babybus.com/pagoda/node:18-alpine AS base
 
-FROM base AS deps
-
 # 设置环境变量http_proxy和https_proxy
 ENV http_proxy=http://10.9.249.135:18888
 ENV https_proxy=http://10.9.249.135:18888
+
+FROM base AS deps
 
 RUN apk add --no-cache libc6-compat
 
@@ -16,6 +16,7 @@ RUN pnpm config set registry 'https://registry.npmjs.org/'
 RUN pnpm install --no-frozen-lockfile
 
 FROM base AS builder
+
 
 RUN apk update && apk add --no-cache git
 
