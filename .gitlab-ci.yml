@@ -1,0 +1,7 @@
+include:
+  - project: pagoda/ci-template/pagoda
+    file: default.yml
+    ref: $DEFAULT_REF
+
+variables:
+  APPNAME: pagoda-midjourney
