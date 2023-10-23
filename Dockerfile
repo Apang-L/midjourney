@@ -1,25 +1,30 @@
+### 基础镜像 ###
 FROM node:18-alpine AS base
+# 设置Alpine的镜像源为阿里云的镜像源
+RUN echo "http://mirrors.aliyun.com/alpine/v3.10/main/" > /etc/apk/repositories \
+ && echo "http://mirrors.aliyun.com/alpine/v3.10/community/" >> /etc/apk/repositories
 
+### 依赖镜像 ###
 FROM base AS deps
 
-# 使用国内apk源
-RUN echo "https://mirrors.aliyun.com/alpine/v3.13/main/" > /etc/apk/repositories \
-    && apk add --no-cache libc6-compat
+RUN apk add --no-cache libc6-compat
 
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml ./
-# 使用国内npm源
-RUN npm config set registry 'https://registry.npm.taobao.org/' \
-    && npm install pnpm -g \
-    && pnpm config set registry 'https://registry.npm.taobao.org/' \
-    && pnpm install --no-frozen-lockfile
 
+# 更换为淘宝镜像
+RUN npm install -g pnpm --registry=https://registry.npm.taobao.org
+RUN pnpm config set registry 'https://registry.npm.taobao.org/'
+RUN pnpm install --no-frozen-lockfile
+
+### 构建镜像 ###
 FROM base AS builder
+# 设置Alpine的镜像源为阿里云的镜像源
+RUN echo "http://mirrors.aliyun.com/alpine/v3.10/main/" > /etc/apk/repositories \
+ && echo "http://mirrors.aliyun.com/alpine/v3.10/community/" >> /etc/apk/repositories
 
-# 使用国内apk源
-RUN echo "https://mirrors.aliyun.com/alpine/v3.13/main/" > /etc/apk/repositories \
-    && apk update && apk add --no-cache git
+RUN apk update && apk add --no-cache git
 
 ENV OPENAI_API_KEY=""
 ENV CODE=""
@@ -29,12 +34,11 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
 
+### 运行镜像 ###
 FROM base AS runner
 WORKDIR /app
 
-# 使用国内apk源
-RUN echo "https://mirrors.aliyun.com/alpine/v3.13/main/" > /etc/apk/repositories \
-    && apk add proxychains-ng
+RUN apk add proxychains-ng
 
 ENV PROXY_URL=""
 ENV OPENAI_API_KEY=""
