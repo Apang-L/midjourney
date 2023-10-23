@@ -37,14 +37,14 @@ RUN apk add proxychains-ng
 ENV http_proxy=
 ENV https_proxy=
 
-# ENV PROXY_URL="http://10.9.249.135:18888"
-# ENV OPENAI_API_KEY="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"
-# ENV CODE=""
-# ENV MJ_SERVER_ID="1130174786010624020"
-# ENV MJ_CHANNEL_ID="1130175529413267486"
-# ENV MJ_USER_TOKEN="MTA3NTY2MTU5MDM3ODA3MDA0OA.GaszkB.MNKkUj63d2X7JAraezL2Sc6XYm0O1stCdRwS1Y"
-# ENV MJ_DISCORD_WSS_PROXY=""
-# ENV MJ_DISCORD_CDN_PROXY=""
+ENV PROXY_URL="http://10.9.249.135:18888"
+ENV OPENAI_API_KEY="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"
+ENV CODE=""
+ENV MJ_SERVER_ID="1130174786010624020"
+ENV MJ_CHANNEL_ID="1130175529413267486"
+ENV MJ_USER_TOKEN="MTA3NTY2MTU5MDM3ODA3MDA0OA.GaszkB.MNKkUj63d2X7JAraezL2Sc6XYm0O1stCdRwS1Y"
+ENV MJ_DISCORD_WSS_PROXY=""
+ENV MJ_DISCORD_CDN_PROXY=""
 
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
@@ -53,24 +53,24 @@ COPY --from=builder /app/.next/server ./.next/server
 
 EXPOSE 3000
 
-# CMD if [ -n "$PROXY_URL" ]; then \
-#         export HOSTNAME="127.0.0.1"; \
-#         protocol=$(echo $PROXY_URL | cut -d: -f1); \
-#         host=$(echo $PROXY_URL | cut -d/ -f3 | cut -d: -f1); \
-#         port=$(echo $PROXY_URL | cut -d: -f3); \
-#         conf=/etc/proxychains.conf; \
-#         echo "strict_chain" > $conf; \
-#         echo "proxy_dns" >> $conf; \
-#         echo "remote_dns_subnet 224" >> $conf; \
-#         echo "tcp_read_time_out 15000" >> $conf; \
-#         echo "tcp_connect_time_out 8000" >> $conf; \
-#         echo "localnet 127.0.0.0/255.0.0.0" >> $conf; \
-#         echo "localnet ::1/128" >> $conf; \
-#         echo "[ProxyList]" >> $conf; \
-#         echo "$protocol $host $port" >> $conf; \
-#         cat /etc/proxychains.conf; \
-#         proxychains -f $conf node server.js; \
-#     else \
-#         node server.js; \
-#     fi
-CMD [ "node", "server.js" ]
+CMD if [ -n "$PROXY_URL" ]; then \
+        export HOSTNAME="127.0.0.1"; \
+        protocol=$(echo $PROXY_URL | cut -d: -f1); \
+        host=$(echo $PROXY_URL | cut -d/ -f3 | cut -d: -f1); \
+        port=$(echo $PROXY_URL | cut -d: -f3); \
+        conf=/etc/proxychains.conf; \
+        echo "strict_chain" > $conf; \
+        echo "proxy_dns" >> $conf; \
+        echo "remote_dns_subnet 224" >> $conf; \
+        echo "tcp_read_time_out 15000" >> $conf; \
+        echo "tcp_connect_time_out 8000" >> $conf; \
+        echo "localnet 127.0.0.0/255.0.0.0" >> $conf; \
+        echo "localnet ::1/128" >> $conf; \
+        echo "[ProxyList]" >> $conf; \
+        echo "$protocol $host $port" >> $conf; \
+        cat /etc/proxychains.conf; \
+        proxychains -f $conf node server.js; \
+    else \
+        node server.js; \
+    fi
+# CMD [ "node", "server.js" ]
