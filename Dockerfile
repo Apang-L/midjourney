@@ -84,15 +84,14 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 
 # 设置环境变量http_proxy和https_proxy
+# 设置环境变量http_proxy和https_proxy
 ENV http_proxy=http://10.9.249.135:18888
 ENV https_proxy=http://10.9.249.135:18888
+#  设置环境变量no_proxy
+ENV no_proxy=localhost,127.0.0.1,10.0.0.0/16,192.168.0.0/16,172.16.0.0/12,mj.pagoda.babybus.co
 
 # Install Next.js and other dependencies
 RUN npm install
-
-# 取消代理环境变量
-ENV http_proxy=
-ENV https_proxy=
 
 # Copy the rest of the application code into the container
 COPY . .
