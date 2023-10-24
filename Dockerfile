@@ -34,7 +34,7 @@ WORKDIR /app
 
 RUN apk add proxychains-ng
     
-ENV PROXY_URL=""
+ENV PROXY_URL="http://10.9.249.135:18888"
 ENV OPENAI_API_KEY="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"
 ENV CODE=""
 ENV MJ_SERVER_ID="1130174786010624020"
@@ -51,7 +51,7 @@ COPY --from=builder /app/.next/server ./.next/server
 EXPOSE 3000
 
 CMD if [ -n "$PROXY_URL" ]; then \
-        export HOSTNAME="127.0.0.1"; \
+        # export HOSTNAME="127.0.0.1"; \
         protocol=$(echo $PROXY_URL | cut -d: -f1); \
         host=$(echo $PROXY_URL | cut -d/ -f3 | cut -d: -f1); \
         port=$(echo $PROXY_URL | cut -d: -f3); \
