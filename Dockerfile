@@ -33,7 +33,7 @@ FROM base AS runner
 WORKDIR /app
 
 RUN apk add proxychains-ng
-
+    
 ENV PROXY_URL=""
 ENV OPENAI_API_KEY="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"
 ENV CODE=""
