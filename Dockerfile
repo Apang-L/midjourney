@@ -21,7 +21,7 @@ FROM base AS builder
 
 RUN apk update && apk add --no-cache git
 
-ENV OPENAI_API_KEY=""
+ENV OPENAI_API_KEY="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"
 ENV CODE=""
 
 WORKDIR /app
@@ -34,11 +34,7 @@ WORKDIR /app
 
 RUN apk add proxychains-ng
 
-# 取消代理环境变量
-ENV http_proxy=
-ENV https_proxy=
-
-ENV PROXY_URL="http://10.9.249.135:18888"
+ENV PROXY_URL=""
 ENV OPENAI_API_KEY="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"
 ENV CODE=""
 ENV MJ_SERVER_ID="1130174786010624020"
